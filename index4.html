@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      background-color: #f2f2f2;
+      /* display: flex; */
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .container-wrapper {
+      display: flex;
+      justify-content: center;
+    }
+    
+    .container {
+      margin-top: 15%;
+      width: 300px;
+      height: 200px;
+      border: 1px solid #eaeaea;
+      padding: 10px;
+      margin-bottom: 20px;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .container:hover {
+      transform: scale(1.05);
+    }
+
+    .left-container {
+      margin-right: 20px;
+    }
+    
+    .right-container {
+      margin-left: 20px;
+    }
+    
+    .item {
+      background-color: #ffffff;
+      border: 1px solid #eaeaea;
+      padding: 12px;
+      margin-bottom: 12px;
+      cursor: move;
+      border-radius: 8px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+      color: #333333;
+    }
+    
+    .item:hover {
+      background-color: #f9f9f9;
+      transform: translateY(-3px);
+    }
+    
+    .item.dragging {
+      opacity: 0.5;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #ffffff;
+      width: 300px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      animation: fade-in 0.3s ease;
+      z-index: 9999; /* Set a higher z-index value */
+    }
+    
+    .modal.show {
+      display: block;
+    }
+    
+    .success-message {
+      color: #28a745;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .button {
+      padding: 14px 28px;
+      background-color: #28a745;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 18px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      text-transform: uppercase;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-left: 46%;
+    }
+    
+    .button:hover {
+      background-color: #228f3d;
+      transform: translateY(-3px);
+    }
+    
+    .button:focus {
+      outline: none;
+    }
+    
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slide-in {
+      from {
+        transform: translateX(-100%);
+      }
+      to {
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-12px);
+      }
+    }
+
+    .container-wrapper.animate {
+      animation: slide-in 0.5s ease;
+    }
+
+    .item.animate {
+      animation: bounce 0.5s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-wrapper">
+    <div class="left-container container animate">
+      <div class="item" draggable="true">Item 1</div>
+      <div class="item" draggable="true">Item 2</div>
+      <div class="item" draggable="true">Item 3</div>
+    </div>
+    <div class="right-container container animate" id="secondContainer"></div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="success-message" id="successMessage"></div>
+    <button class="button" onclick="closeModal()">Close</button>
+  </div>
+  
+  <button class="button" onclick="resetContainers()">Reset</button>
+
+  <script>
+    const items = document.querySelectorAll('.item');
+    const secondContainer = document.getElementById('secondContainer');
+    const modal = document.getElementById('modal');
+    const successMessage = document.getElementById('successMessage');
+    let draggedItem = null;
+    
+    items.forEach(item => {
+      item.addEventListener('dragstart', () => {
+        draggedItem = item;
+        item.classList.add('dragging');
+      });
+      
+      item.addEventListener('dragend', () => {
+        draggedItem.classList.remove('dragging');
+        draggedItem = null;
+      });
+    });
+    
+    secondContainer.addEventListener('dragover', event => {
+      event.preventDefault();
+    });
+    
+    secondContainer.addEventListener('drop', event => {
+      event.preventDefault();
+      
+      if (draggedItem) {
+        secondContainer.appendChild(draggedItem);
+        draggedItem.classList.remove('dragging');
+        draggedItem = null;
+        
+        // Display success message in the modal
+        successMessage.textContent = 'Item Moved!';
+        modal.classList.add('show');
+
+        // Automatically close the modal after 2 seconds
+        setTimeout(() => {
+          closeModal();
+        }, 1500);
+      }
+    });
+
+    function closeModal() {
+      modal.classList.remove('show');
+    }
+    
+    function resetContainers() {
+      // Clear the second container
+      secondContainer.innerHTML = '';
+      
+      // Show all items in the first container
+      const leftContainer = document.querySelector('.left-container');
+      const originalItems = Array.from(items);
+      
+      originalItems.forEach(item => {
+        leftContainer.appendChild(item);
+      });
+    }
+  </script>
+</body>
+</html>
